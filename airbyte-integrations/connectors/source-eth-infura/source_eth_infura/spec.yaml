@@ -1,0 +1,20 @@
+documentationUrl: https://docsurl.com
+connectionSpecification:
+  $schema: http://json-schema.org/draft-07/schema#
+  title: Eth Infura API  for block by number with transactions 
+  type: object
+  required:
+    - api_key
+    - hex_number_block
+    - transaction_details
+  properties:
+    # 'TODO: This schema defines the configuration required for the source. This usually involves metadata such as database and/or authentication information.':
+    api_key:
+      type: string
+      description: API access key used to retrieve data from the Exchange Rates API
+    hex_number_block:
+      type: string
+      description: Eth Block Number in Hexadecimal
+    transaction_details:
+      type: boolean
+      description: If True it will show all the transaction details
