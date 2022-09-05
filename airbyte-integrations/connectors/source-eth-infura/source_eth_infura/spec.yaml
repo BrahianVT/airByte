@@ -11,7 +11,8 @@ connectionSpecification:
     # 'TODO: This schema defines the configuration required for the source. This usually involves metadata such as database and/or authentication information.':
     api_key:
       type: string
-      description: API access key used to retrieve data from the Exchange Rates API
+      description: API access key used to retrieve data from the Infura API
+      airbyte_secret: true
     hex_number_block:
       type: string
       description: Eth Block Number in Hexadecimal

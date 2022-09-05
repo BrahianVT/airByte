@@ -1,13 +1,9 @@
 {
-		"name": "blocks",
-		"supported_sync_modes": ["full_refresh"],
-		"source_define_cursor": false,
-		"json_schema" : {
+		
 		  "type": "object",
 		  "properties": {
-			"result": {
-			  "type": "object",
-			  "properties": {
+			
+			  
 				"difficulty": { "type": "string" },
 				"extraData": { "type": "string" },
 				"gasLimit": { "type": "string" },
@@ -50,10 +46,7 @@
 				"transactionsRoot": {
 				  "type": "string"
 				}
-			  },
-			  "required": false
-			}
-		  },
-		  "required": [ "result" ]
-		}
+			  }
+			 
+		  
 }

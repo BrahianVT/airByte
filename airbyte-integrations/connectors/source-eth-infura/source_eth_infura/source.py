@@ -50,7 +50,7 @@ class EthInfuraStream(HttpStream, IncrementalMixin, ABC):
     def __init__(self, config: Mapping[str, Any], start_block: str,**kwargs):
         super().__init__()
         self.api_key = config['api_key']
-        self.transaction_details = config['transaction_details']
+        self.transaction_details = bool(config['transaction_details'])
         self.url_base+=self.api_key
         self.start_block = start_block
         self.body = {
@@ -91,7 +91,7 @@ class EthInfuraStream(HttpStream, IncrementalMixin, ABC):
         TODO: Override this method to define how a response is parsed.
         :return an iterable containing each record in the response
         """
-        return [response.json()]
+        return [response.json()['result']]
         
     def request_body_json(
         self, stream_state: Mapping[str, Any], stream_slice: Mapping[str, Any] = None, next_page_token: Mapping[str, Any] = None, 
@@ -119,14 +119,14 @@ class EthInfuraStream(HttpStream, IncrementalMixin, ABC):
             
     @state.setter
     def state(self, value: Mapping[str, Any]):
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@") 
+        print("@@@@@@@@@@@@@ not working @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@") 
         self._cursor_value = value[self.cursor_field]
         
         
     def read_records(self, *args, **kwargs) -> Iterable[Mapping[str, Any]]:
         for record in super().read_records(*args, **kwargs):
             if self._cursor_value:
-                latest_record_block = record['result']['number']
+                latest_record_block = record['number']
                 self._cursor_value = latest_record_block
             yield record    
     
@@ -139,7 +139,8 @@ class EthInfuraStream(HttpStream, IncrementalMixin, ABC):
         """
         blocks = []
         start_block = int(start_block,16)
-        while start_block < 1_500_000:
+        last = 1500000
+        while start_block < last:
             blocks.append({ self.cursor_field: start_block})
             start_block += 1
         return blocks
@@ -150,11 +151,12 @@ class EthInfuraStream(HttpStream, IncrementalMixin, ABC):
         
         
     def backoff_time(self, response: requests.Response) -> Optional[float]:
-        if response['error']['message'] == "daily request count exceeded, request rate limited":
+        text = response.text
+        
+        if "daily request count exceeded, request rate limited" in text:
             self.max_tries = 0
             return None
-        elif "request rate exceeded" in response['error']['message']:
-            return float(response['error']['data']['backoff_seconds'])
+       
 
 class Blocks(EthInfuraStream):
     """

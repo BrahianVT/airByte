@@ -49,14 +49,11 @@
 					}
 				  ]
 				},
-				"transactionsRoot": {
-				  "type": "string"
-				}
+				"transactionsRoot": {"type": "string"}
 			  },
 			  "required": false
 			}
-		  },
-		  "required": [ "result" ]
+		  }
 		}
       },
 	   "sync_mode": "incremental",
