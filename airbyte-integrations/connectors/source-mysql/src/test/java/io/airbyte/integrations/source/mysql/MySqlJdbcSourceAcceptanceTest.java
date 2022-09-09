@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.mysql.cj.MysqlType;
+import io.airbyte.commons.features.EnvVariableFeatureFlags;
 import io.airbyte.commons.json.Jsons;
 import io.airbyte.commons.resources.MoreResources;
 import io.airbyte.commons.string.Strings;
@@ -55,6 +56,7 @@ class MySqlJdbcSourceAcceptanceTest extends JdbcSourceAcceptanceTest {
 
   @BeforeAll
   static void init() throws Exception {
+    setEnv(EnvVariableFeatureFlags.USE_STREAM_CAPABLE_STATE, "true");
     container = new MySQLContainer<>("mysql:8.0")
         .withUsername(TEST_USER)
         .withPassword(TEST_PASSWORD.call())
@@ -137,27 +139,27 @@ class MySqlJdbcSourceAcceptanceTest extends JdbcSourceAcceptanceTest {
   protected AirbyteCatalog getCatalog(final String defaultNamespace) {
     return new AirbyteCatalog().withStreams(List.of(
         CatalogHelpers.createAirbyteStream(
-                TABLE_NAME,
-                defaultNamespace,
-                Field.of(COL_ID, JsonSchemaType.INTEGER),
-                Field.of(COL_NAME, JsonSchemaType.STRING),
-                Field.of(COL_UPDATED_AT, JsonSchemaType.STRING_DATE))
+            TABLE_NAME,
+            defaultNamespace,
+            Field.of(COL_ID, JsonSchemaType.INTEGER),
+            Field.of(COL_NAME, JsonSchemaType.STRING),
+            Field.of(COL_UPDATED_AT, JsonSchemaType.STRING_DATE))
             .withSupportedSyncModes(List.of(SyncMode.FULL_REFRESH, SyncMode.INCREMENTAL))
             .withSourceDefinedPrimaryKey(List.of(List.of(COL_ID))),
         CatalogHelpers.createAirbyteStream(
-                TABLE_NAME_WITHOUT_PK,
-                defaultNamespace,
-                Field.of(COL_ID, JsonSchemaType.INTEGER),
-                Field.of(COL_NAME, JsonSchemaType.STRING),
-                Field.of(COL_UPDATED_AT, JsonSchemaType.STRING_DATE))
+            TABLE_NAME_WITHOUT_PK,
+            defaultNamespace,
+            Field.of(COL_ID, JsonSchemaType.INTEGER),
+            Field.of(COL_NAME, JsonSchemaType.STRING),
+            Field.of(COL_UPDATED_AT, JsonSchemaType.STRING_DATE))
             .withSupportedSyncModes(List.of(SyncMode.FULL_REFRESH, SyncMode.INCREMENTAL))
             .withSourceDefinedPrimaryKey(Collections.emptyList()),
         CatalogHelpers.createAirbyteStream(
-                TABLE_NAME_COMPOSITE_PK,
-                defaultNamespace,
-                Field.of(COL_FIRST_NAME, JsonSchemaType.STRING),
-                Field.of(COL_LAST_NAME, JsonSchemaType.STRING),
-                Field.of(COL_UPDATED_AT, JsonSchemaType.STRING_DATE))
+            TABLE_NAME_COMPOSITE_PK,
+            defaultNamespace,
+            Field.of(COL_FIRST_NAME, JsonSchemaType.STRING),
+            Field.of(COL_LAST_NAME, JsonSchemaType.STRING),
+            Field.of(COL_UPDATED_AT, JsonSchemaType.STRING_DATE))
             .withSupportedSyncModes(List.of(SyncMode.FULL_REFRESH, SyncMode.INCREMENTAL))
             .withSourceDefinedPrimaryKey(
                 List.of(List.of(COL_FIRST_NAME), List.of(COL_LAST_NAME)))));
@@ -219,4 +221,11 @@ class MySqlJdbcSourceAcceptanceTest extends JdbcSourceAcceptanceTest {
     expectedMessages.addAll(createExpectedTestMessages(List.of(state)));
     return expectedMessages;
   }
+
+  @Override
+  protected boolean supportsPerStream() {
+    return true;
+  }
+
+
 }
